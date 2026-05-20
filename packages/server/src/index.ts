@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 import type { ListingMetadata } from '@verdikt/engine';
 import { ReportStore } from './store.js';
@@ -17,9 +17,6 @@ const MAX_UPLOAD = Number(process.env.MAX_UPLOAD_BYTES ?? 64 * 1024 * 1024);
 const store = new ReportStore(process.env.VERDIKT_DB ?? 'verdikt.sqlite');
 const service = new ScanService({
   store,
-  nucleiTemplatesDir: process.env.NUCLEI_TEMPLATES_DIR
-    ? resolve(process.env.NUCLEI_TEMPLATES_DIR)
-    : undefined,
   claudeApiKey: process.env.ANTHROPIC_API_KEY,
   claudeModel: process.env.VERDIKT_CLAUDE_MODEL,
 });

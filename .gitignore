@@ -4,7 +4,3 @@ dist/
 *.sqlite-shm
 *.sqlite-wal
 .env
-
-# Reference repos provided as source material — tracked in their own git clones.
-ChromeAudit/
-tarnish/

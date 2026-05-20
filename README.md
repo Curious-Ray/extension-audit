@@ -6,10 +6,10 @@ violation categories (each tagged with its notification ID, e.g. `Blue Argon`,
 `Purple Potassium`, `Yellow Zinc`) and returns a verdict with per-category
 findings, evidence, the verbatim policy, and how to fix each issue.
 
-It draws on two reference security tools shipped in this repo — the **ChromeAudit**
-Nuclei templates and the **tarnish** static analyzer — but is organized around
-*store-policy rejection reasons*, not just security, because that's what actually
-gets extensions rejected.
+It draws on ideas from existing extension security tools (Nuclei-style regex
+checks, tarnish-style static analysis) but is organized around *store-policy
+rejection reasons*, not just security, because that's what actually gets
+extensions rejected.
 
 ## Architecture
 
@@ -55,12 +55,11 @@ node packages/server/dist/index.js   # http://localhost:5174
 | `PORT` | Server port (default `5174`). |
 | `VERDIKT_DB` | SQLite path (default `verdikt.sqlite`; `:memory:` for ephemeral). |
 | `MAX_UPLOAD_BYTES` | Upload size limit (default 64 MB). |
-| `NUCLEI_TEMPLATES_DIR` | Path to the `ChromeAudit/` templates. Enables the optional Nuclei security pass (requires the `nuclei` binary on PATH). |
 | `ANTHROPIC_API_KEY` | Enables the optional Claude judge for subjective categories (deceptive description, single purpose, minimum functionality). |
 | `VERDIKT_CLAUDE_MODEL` | Override the Claude model (default `claude-opus-4-7`). |
 
-Without the optional vars, Verdikt runs rules-only and notes in each report
-which modules were skipped.
+Without `ANTHROPIC_API_KEY`, Verdikt runs rules-only and notes in each report
+that the subjective LLM judge was skipped.
 
 ## Inputs
 

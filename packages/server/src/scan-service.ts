@@ -3,14 +3,11 @@ import type { Bundle, Checker, CheckerContext, ListingMetadata, Report } from '@
 import { buildBundle, unzip, BundleError } from './bundle/build.js';
 import { crxToZip } from './bundle/crx.js';
 import { bundleFromWebStore } from './bundle/webstore.js';
-import { makeNucleiChecker } from './modules/nuclei.js';
 import { makeLlmJudge } from './modules/llm-judge.js';
 import type { ReportStore } from './store.js';
 
 export interface ScanServiceConfig {
   store: ReportStore;
-  /** Path to ChromeAudit Nuclei templates; enables the Nuclei module if set. */
-  nucleiTemplatesDir?: string;
   /** Claude API key; enables the subjective LLM judge if set. */
   claudeApiKey?: string;
   claudeModel?: string;
@@ -68,9 +65,6 @@ export class ScanService {
     }
 
     const extraCheckers: Checker[] = [];
-    if (this.cfg.nucleiTemplatesDir) {
-      extraCheckers.push(makeNucleiChecker(this.cfg.nucleiTemplatesDir));
-    }
     if (this.cfg.claudeApiKey) {
       extraCheckers.push(makeLlmJudge({ apiKey: this.cfg.claudeApiKey, model: this.cfg.claudeModel }));
     }
@@ -78,9 +72,6 @@ export class ScanService {
     const report = await scan(bundle, { extraCheckers, ctx });
 
     // Note which optional modules ran, so the UI can be honest about coverage.
-    if (!this.cfg.nucleiTemplatesDir) {
-      report.notices.push({ level: 'info', message: 'Nuclei security module not run (no templates configured).' });
-    }
     if (!this.cfg.claudeApiKey) {
       report.notices.push({
         level: 'info',
