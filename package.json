@@ -1,0 +1,18 @@
+{
+  "name": "verdikt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome Web Store rejection predictor",
+  "type": "module",
+  "workspaces": [
+    "packages/engine",
+    "packages/server",
+    "packages/web"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "dev:server": "npm run dev --workspace @verdikt/server",
+    "dev:web": "npm run dev --workspace @verdikt/web"
+  }
+}
