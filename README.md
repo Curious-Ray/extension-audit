@@ -17,9 +17,10 @@ A TypeScript monorepo (npm workspaces):
 
 | Package | Role |
 |---|---|
-| `packages/engine` | Pure, I/O-free analysis core. `Bundle → Report`. Fully unit-tested. |
-| `packages/server` | Fastify + SQLite. Normalizes input (folder/zip/crx/URL), runs the engine, optional Nuclei + Claude modules, caches & serves reports. |
-| `packages/web` | React + Vite report dashboard. |
+| `packages/engine` | Pure, I/O-free analysis core. `Bundle → Report`. Fully unit-tested. Runs in Node **and** the browser. |
+| `packages/web` | React + Vite app that runs the engine **client-side** — uploads are unzipped and audited entirely in the browser (nothing is sent anywhere). Deploys static to GitHub Pages. |
+| `packages/worker` | Tiny Cloudflare Worker that relays the CRX + listing for Web Store **URL** scanning (the only thing a browser can't fetch cross-origin). Optional. |
+| `packages/server` | Full Fastify + SQLite alternative: server-side scanning, content-hash caching, shareable `/report/:id` links, optional Claude judge. Use when you want those extras instead of the static build. |
 
 ### Verdict model
 
@@ -29,19 +30,48 @@ Every finding is `blocker` / `warning` / `manual`. The overall verdict:
 - **At Risk** — warnings only.
 - **Looks Clear** — only manual-review items remain.
 
-## Running
+## Running (static / client-side — the default)
 
 ```bash
 npm install
-
-# Terminal 1 — API (port 5174)
-npm run dev:server
-
-# Terminal 2 — web UI (port 5173, proxies /api to 5174)
-npm run dev:web
+npm run build --workspace @verdikt/engine   # web imports the built engine
+npm run dev:web                              # http://localhost:5173
 ```
 
-Or single-process production mode (server serves the built UI):
+The audit runs in the browser. Upload a `.zip`/`.crx` and it's analyzed locally.
+Web Store **URL** scanning needs the Worker (below) — without it, the URL tab is
+hidden and upload still works.
+
+## Deploying to GitHub Pages
+
+The repo includes `.github/workflows/pages.yml`, which builds the web app and
+deploys it on every push to `master`/`main`.
+
+1. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Push. The site goes live at `https://<user>.github.io/extension-audit/`.
+
+The workflow sets `VITE_BASE=/extension-audit/`. To enable URL scanning, deploy
+the Worker and add its URL as a repo **variable** named `VITE_PROXY_URL`
+(**Settings → Secrets and variables → Actions → Variables**).
+
+### Deploy the Worker (optional — enables URL scanning)
+
+```bash
+cd packages/worker
+npm install
+npx wrangler login
+npx wrangler deploy        # prints a https://verdikt-proxy.<you>.workers.dev URL
+```
+
+Set that URL as the `VITE_PROXY_URL` repo variable (for Pages) or in
+`packages/web/.env` as `VITE_PROXY_URL=...` (for local dev). The Worker only
+relays the CRX + listing bytes the browser can't fetch cross-origin; the audit
+still runs client-side.
+
+## Full server mode (optional alternative)
+
+For server-side scanning, content-hash caching, and shareable `/report/:id`
+links:
 
 ```bash
 npm run build

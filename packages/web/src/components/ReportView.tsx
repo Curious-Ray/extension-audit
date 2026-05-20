@@ -19,9 +19,8 @@ const VERDICT_META: Record<Report['verdict'], { icon: string; title: string; blu
   },
 };
 
-export function ReportView({ report, reportId, cached }: { report: Report; reportId?: string; cached?: boolean }) {
+export function ReportView({ report }: { report: Report }) {
   const meta = VERDICT_META[report.verdict];
-  const shareUrl = reportId ? `${location.origin}/report/${reportId}` : null;
 
   return (
     <div>
@@ -37,20 +36,6 @@ export function ReportView({ report, reportId, cached }: { report: Report; repor
           <Count n={report.counts.manual} label="Manual" cls="manual" />
         </div>
       </div>
-
-      {shareUrl && (
-        <div className="toolbar">
-          <button
-            className="link-btn"
-            onClick={() => {
-              navigator.clipboard.writeText(shareUrl);
-            }}
-          >
-            Copy shareable link
-          </button>
-          {cached && <span className="cached-badge">cached result</span>}
-        </div>
-      )}
 
       <div className="section-title">Findings by policy category</div>
       {report.categories.length === 0 ? (

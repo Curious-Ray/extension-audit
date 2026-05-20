@@ -1,34 +1,14 @@
+// The audit runs in the browser. These wrappers keep a stable surface for the
+// UI components while delegating to the client-side engine (lib/scan.ts).
 import type { ListingInput, ScanResult } from './types.js';
+import { scanFile as clientScanFile, scanUrl as clientScanUrl, urlScanAvailable } from './lib/scan.js';
 
-async function handle(res: Response): Promise<ScanResult> {
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error ?? `Request failed (${res.status})`);
-  return data as ScanResult;
-}
+export { urlScanAvailable };
 
-/** Scan an uploaded file (zip/crx), with optional listing metadata. */
 export async function scanFile(file: File, listing?: ListingInput): Promise<ScanResult> {
-  const form = new FormData();
-  form.append('file', file);
-  if (listing) form.append('listing', JSON.stringify(listing));
-  return handle(await fetch('/api/scan', { method: 'POST', body: form }));
+  return clientScanFile(file, listing);
 }
 
-/** Scan a published extension by Web Store URL. */
 export async function scanUrl(url: string, listing?: ListingInput): Promise<ScanResult> {
-  return handle(
-    await fetch('/api/scan', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ url, listing }),
-    }),
-  );
-}
-
-/** Fetch a previously-generated report by id. */
-export async function getReport(id: string): Promise<ScanResult> {
-  const res = await fetch(`/api/report/${id}`);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error ?? 'Report not found');
-  return { id: data.id, report: data.report };
+  return clientScanUrl(url.trim(), listing);
 }

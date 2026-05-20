@@ -1,58 +1,23 @@
-// Mirrors @verdikt/engine's Report shape for the client.
-export type Severity = 'blocker' | 'warning' | 'manual';
-export type Verdict = 'likely_rejected' | 'at_risk' | 'looks_clear';
+// Re-export the engine's report types so the client and components share one
+// source of truth. The audit now runs in the browser via @verdikt/engine.
+export type {
+  Severity,
+  Verdict,
+  Evidence,
+  Finding,
+  CategorySummary,
+  ReportNotice,
+  Report,
+  ListingMetadata,
+} from '@verdikt/engine';
 
-export interface Evidence {
-  path: string;
-  line?: number;
-  snippet?: string;
-}
-
-export interface Finding {
-  notificationId: string;
-  category: string;
-  severity: Severity;
-  title: string;
-  evidence?: Evidence[];
-  policyQuote: string;
-  howToFix: string;
-  source: 'native' | 'nuclei' | 'llm';
-}
-
-export interface CategorySummary {
-  notificationId: string;
-  category: string;
-  blocker: number;
-  warning: number;
-  manual: number;
-  findings: Finding[];
-}
-
-export interface ReportNotice {
-  level: 'info' | 'warning' | 'error';
-  message: string;
-}
-
-export interface Report {
-  verdict: Verdict;
-  counts: { blocker: number; warning: number; manual: number };
-  categories: CategorySummary[];
-  findings: Finding[];
-  notices: ReportNotice[];
-  source: string;
-  generatedAt: string;
-}
+import type { Report, ListingMetadata } from '@verdikt/engine';
 
 export interface ScanResult {
+  /** Local pseudo-id for this scan (no server persistence in the static build). */
   id: string;
   report: Report;
   cached?: boolean;
 }
 
-export interface ListingInput {
-  title?: string;
-  description?: string;
-  privacyPolicyUrl?: string;
-  screenshotCount?: number;
-  iconPresent?: boolean;
-}
+export type ListingInput = ListingMetadata;

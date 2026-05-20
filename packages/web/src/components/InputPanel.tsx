@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { ListingInput, ScanResult } from '../types.js';
-import { scanFile, scanUrl } from '../api.js';
+import { scanFile, scanUrl, urlScanAvailable } from '../api.js';
 
 type Mode = 'upload' | 'url';
 
@@ -61,9 +61,11 @@ export function InputPanel({
         <button className={`tab ${mode === 'upload' ? 'active' : ''}`} onClick={() => setMode('upload')}>
           Upload package
         </button>
-        <button className={`tab ${mode === 'url' ? 'active' : ''}`} onClick={() => setMode('url')}>
-          Web Store URL
-        </button>
+        {urlScanAvailable && (
+          <button className={`tab ${mode === 'url' ? 'active' : ''}`} onClick={() => setMode('url')}>
+            Web Store URL
+          </button>
+        )}
       </div>
 
       {mode === 'upload' ? (

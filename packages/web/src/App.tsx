@@ -1,29 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ScanResult } from './types.js';
-import { getReport } from './api.js';
 import { InputPanel } from './components/InputPanel.js';
 import { ReportView } from './components/ReportView.js';
 
 export function App() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [busy, setBusy] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
-
-  // Deep-link: /report/:id loads a stored report.
-  useEffect(() => {
-    const m = location.pathname.match(/^\/report\/([\w-]+)$/);
-    if (!m) return;
-    setBusy(true);
-    getReport(m[1]!)
-      .then((r) => setResult(r))
-      .catch((e) => setLoadError(e instanceof Error ? e.message : 'Failed to load report'))
-      .finally(() => setBusy(false));
-  }, []);
 
   function reset() {
-    history.pushState({}, '', '/');
     setResult(null);
-    setLoadError(null);
   }
 
   return (
@@ -37,7 +22,7 @@ export function App() {
       <p className="sub">
         Upload your extension package (<code>.zip</code>/<code>.crx</code>) or paste a Web Store URL. Verdikt maps it
         against the official Chrome Web Store violation categories and predicts whether it would be rejected — with the
-        exact policy and how to fix each issue.
+        exact policy and how to fix each issue. The audit runs entirely in your browser; nothing is uploaded.
       </p>
 
       {!result && !busy && <InputPanel onResult={setResult} onBusy={setBusy} />}
@@ -49,8 +34,6 @@ export function App() {
         </div>
       )}
 
-      {loadError && <div className="error">{loadError}</div>}
-
       {result && !busy && (
         <>
           <div className="toolbar" style={{ marginBottom: 4 }}>
@@ -58,7 +41,7 @@ export function App() {
               ← New scan
             </button>
           </div>
-          <ReportView report={result.report} reportId={result.id} cached={result.cached} />
+          <ReportView report={result.report} />
         </>
       )}
     </div>

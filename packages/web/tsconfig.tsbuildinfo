@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/api.ts","./src/main.tsx","./src/types.ts","./src/components/inputpanel.tsx","./src/components/reportview.tsx"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/api.ts","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/inputpanel.tsx","./src/components/reportview.tsx","./src/lib/bundle.ts","./src/lib/scan.ts"],"version":"5.9.3"}

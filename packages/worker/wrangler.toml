@@ -1,0 +1,8 @@
+name = "verdikt-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+# Deploy with:  npx wrangler deploy
+# After deploy, copy the printed *.workers.dev URL and set it as VITE_PROXY_URL
+# for the web build (locally in packages/web/.env, or as a repo variable for the
+# GitHub Pages workflow).
