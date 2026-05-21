@@ -12,7 +12,7 @@ export function extensionIdFromUrl(input: string): string {
 }
 
 /** Build the Google CRX download URL for an extension ID. */
-export function crxDownloadUrl(id: string, prodversion = '120.0'): string {
+export function crxDownloadUrl(id: string, prodversion = '9999.0'): string {
   const x = `id=${id}&installsource=ondemand&uc`;
   return (
     'https://clients2.google.com/service/update2/crx' +

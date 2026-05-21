@@ -4,3 +4,6 @@ dist/
 *.sqlite-shm
 *.sqlite-wal
 .env
+
+# Local secret — never commit
+cloudflare api.txt

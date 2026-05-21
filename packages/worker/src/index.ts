@@ -41,16 +41,20 @@ export default {
 
 function crxDownloadUrl(id: string): string {
   const x = `id=${id}&installsource=ondemand&uc`;
+  // prodversion must be high — a low value makes the update endpoint reply 204
+  // ("you're up to date") instead of redirecting to the CRX.
   return (
     'https://clients2.google.com/service/update2/crx' +
-    `?response=redirect&acceptformat=crx2,crx3&prodversion=120.0&x=${encodeURIComponent(x)}`
+    `?response=redirect&acceptformat=crx2,crx3&prodversion=9999.0&x=${encodeURIComponent(x)}`
   );
 }
 
 async function fetchCrx(id: string): Promise<Response> {
   const res = await fetch(crxDownloadUrl(id), { redirect: 'follow' });
-  if (!res.ok || !res.body) {
-    return json({ error: `CRX download failed (HTTP ${res.status}). The extension may be unlisted or removed.` }, res.status || 502);
+  if (!res.ok || !res.body || res.status === 204) {
+    // Always use a 5xx status here — never pass through a 204, which legally
+    // cannot carry the JSON error body.
+    return json({ error: `CRX download failed (HTTP ${res.status}). The extension may be unlisted or removed.` }, 502);
   }
   return new Response(res.body, {
     headers: { ...CORS, 'content-type': 'application/octet-stream', 'cache-control': 'public, max-age=3600' },
